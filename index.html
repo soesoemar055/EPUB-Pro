@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web ePub Creator Pro</title>
+    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Standard JSZip Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
     <style>
         :root {
             --bg-color: #121824;
@@ -91,6 +95,7 @@
 
 <div class="app-container">
 
+    <!-- SIGN IN / SIGN UP SCREEN -->
     <div id="auth-screen">
         <div class="auth-toggle">
             <span id="tab-login" class="active" onclick="switchAuthTab('login')">Sign In</span>
@@ -107,6 +112,7 @@
         <button class="btn btn-blue" id="btn-auth" onclick="handleAuth()">Sign In</button>
     </div>
 
+    <!-- MAIN APP SCREEN -->
     <div id="main-app" class="hidden">
         <div class="header">
             <div class="brand">
@@ -120,6 +126,7 @@
         </div>
 
         <div class="content">
+            <!-- Backup Management -->
             <div class="panel">
                 <div class="panel-title" id="lbl-backup-title"><i class="fa-solid fa-floppy-disk"></i> စာအုပ် BACKUP စီမံခန့်ခွဲမှု</div>
                 <button class="btn btn-gray" onclick="exportBackup()" style="margin-bottom:8px;"><i class="fa-solid fa-floppy-disk"></i> <span id="lbl-btn-backup">လက်ရှိစာအုပ်ကို ဖိုင်သိမ်းဆည်းမည် (Backup)</span></button>
@@ -130,6 +137,7 @@
                 <button class="btn btn-red" onclick="resetForm()"><i class="fa-solid fa-paintbrush"></i> <span id="lbl-btn-reset">စာအုပ်အသစ်အတွက် အစကပြန်စမည် (Reset)</span></button>
             </div>
 
+            <!-- Meta Data -->
             <div class="form-group">
                 <label id="lbl-book-title">စာအုပ်အမည် (Book Title)</label>
                 <input type="text" id="book-title" placeholder="My Novel" oninput="saveCurrentBookState()">
@@ -146,13 +154,14 @@
                 <small id="cover-status" style="color: var(--btn-green); font-weight:bold; margin-top:2px;"></small>
             </div>
 
+            <!-- Chapters Management -->
             <div class="form-group">
                 <label id="lbl-chapters">အခန်းများ (Chapters)</label>
                 <button class="btn btn-blue" onclick="addNewChapter()"><i class="fa-solid fa-plus"></i> <span id="lbl-btn-addchapter">အခန်းတိုးမည် (Add Chapter)</span></button>
-                <div class="chapter-list-box" id="chapter-list">
-                    </div>
+                <div class="chapter-list-box" id="chapter-list"></div>
             </div>
 
+            <!-- PDF Optional -->
             <div class="pdf-box">
                 <div style="color: #10b981; font-weight: bold; font-size: 0.85rem; margin-bottom: 8px;">
                     <i class="fa-solid fa-file-pdf"></i> <span id="lbl-pdf-title">PDF မှ စာသားထုတ်ယူရန် (Optional)</span>
@@ -161,6 +170,7 @@
                 <button class="btn btn-green" style="padding:8px; font-size:0.85rem;"><i class="fa-solid fa-bolt"></i> <span id="lbl-btn-pdfextract">PDF မှ စာသားများကို ဆွဲထုတ်မည်</span></button>
             </div>
 
+            <!-- Chapter Editor Section -->
             <div class="form-group">
                 <label id="lbl-chap-title">အခန်းခေါင်းစဉ် (Chapter Title)</label>
                 <input type="text" id="chapter-title" placeholder="Chapter Title" oninput="updateActiveChapterTitle(this.value)">
@@ -168,6 +178,7 @@
 
             <button class="btn btn-red" onclick="clearContent()"><i class="fa-solid fa-broom"></i> <span id="lbl-btn-clear">စာသားအားလုံးဖျက်ရန် (Clear All Content)</span></button>
 
+            <!-- Text & Multiple Image Editor -->
             <div class="form-group">
                 <label id="lbl-chap-content">အခန်းတွင်းစာသား (Chapter Content)</label>
                 <div class="editor-container">
@@ -186,7 +197,8 @@
                 </div>
             </div>
 
-            <button class="btn btn-green" onclick="alert('ePub Production Ready!')">
+            <!-- Export ePub Button -->
+            <button class="btn btn-green" onclick="generateEPUB()">
                 <i class="fa-solid fa-box"></i> <span id="lbl-btn-export">ePub ဖိုင် ထုတ်ယူမည်</span>
             </button>
         </div>
@@ -194,9 +206,8 @@
 </div>
 
 <script>
-    // --- Data Model ---
     let currentLang = 'my';
-    let bookChapters = []; // Array of { id, title, content }
+    let bookChapters = []; 
     let activeChapterId = null;
     let coverBase64 = "";
 
@@ -223,7 +234,6 @@
         }
     };
 
-    // --- On Load Check Login ---
     window.onload = function() {
         if (localStorage.getItem('epub_logged_in') === 'true') {
             showMainApp();
@@ -253,11 +263,10 @@
         loadBookState(); 
     }
 
-    // --- Chapter Logic (Fixes Issue 3) ---
     function addNewChapter() {
         const id = Date.now();
         const num = bookChapters.length + 1;
-        const newChap = { id: id, title: "Chapter " + num, content: "စာသားများထည့်ရန်..." };
+        const newChap = { id: id, title: "Chapter " + num, content: "စာသားများနှင့် ပုံများထည့်ပါ။" };
         bookChapters.push(newChap);
         activeChapterId = id;
         renderChapterList();
@@ -272,7 +281,7 @@
             const div = document.createElement('div');
             div.className = `chapter-item ${chap.id === activeChapterId ? 'active' : ''}`;
             div.setAttribute('onclick', `selectChapter(${chap.id})`);
-            div.innerHTML = `<span><i class="fa-solid fa-book-open" style="color:inherit; margin-right:5px;"></i> ${chap.title}</span> 
+            div.innerHTML = `<span><i class="fa-solid fa-book-open" style="margin-right:5px;"></i> ${chap.title}</span> 
                              <i class="fa-solid fa-trash" onclick="deleteChapter(event, ${chap.id})"></i>`;
             listContainer.appendChild(div);
         });
@@ -321,11 +330,9 @@
         saveCurrentBookState();
     }
 
-    // --- Multiple Images Upload (Fixes Issue 4) ---
     function insertMultipleImages(event) {
         const files = event.target.files;
         if (!files.length) return;
-
         document.getElementById('editor').focus();
         
         Array.from(files).forEach(file => {
@@ -337,7 +344,7 @@
             };
             reader.readAsDataURL(file);
         });
-        event.target.value = ''; // reset file input
+        event.target.value = '';
     }
 
     function handleCoverUpload(event) {
@@ -353,7 +360,6 @@
         }
     }
 
-    // --- Local Storage & Backup (Fixes Issue 2) ---
     function saveCurrentBookState() {
         const fullData = {
             title: document.getElementById('book-title').value,
@@ -385,7 +391,7 @@
     function exportBackup() {
         saveCurrentBookState();
         const dataStr = localStorage.getItem('epub_master_data');
-        if(!dataStr) return alert("သိမ်းဆည်းရန် ဒေတာမရှိသေးပါ!");
+        if(!dataStr) return alert("ဒေတာမရှိသေးပါ!");
         
         const blob = new Blob([dataStr], {type: "application/json"});
         const url = URL.createObjectURL(blob);
@@ -393,7 +399,6 @@
         a.href = url;
         a.download = (document.getElementById('book-title').value || 'my_book') + '_backup.json';
         a.click();
-        URL.revokeObjectURL(url);
     }
 
     function importBackup(event) {
@@ -403,31 +408,173 @@
         reader.onload = function(e) {
             localStorage.setItem('epub_master_data', e.target.result);
             loadBookState();
-            alert("Backup ဖိုင်ထဲမှ အခန်းများနှင့် ပုံများအားလုံးကို ပြန်လည်တင်သွင်းပြီးပါပြီ။");
+            alert("ဒေတာများအားလုံး ပြန်တင်ပြီးပါပြီ။");
         };
         reader.readAsText(file);
-        event.target.value = '';
     }
 
-    // --- Editor Commands & Utilities ---
-    function formatDoc(cmd) { document.execCommand(cmd, false, null); }
-    function clearContent() { 
-        document.getElementById('editor').innerHTML = ""; 
-        updateActiveChapterContent(); 
+    // --- 🌟 XHTML CONTENT SANITIZER & SERIALIZER ENGINE (100% BULLETPROOF) 🌟 ---
+    function cleanHTMLForXHTML(htmlContent) {
+        if (!htmlContent) return "";
+        
+        // 1. Unescaped Spaces များကို XHTML ကုဒ်သို့ ပြောင်းလဲခြင်း
+        let clean = htmlContent.replace(/&nbsp;/g, '&#160;');
+
+        // 2. သန့်စင်ရန်အတွက် DOM Parser တစ်ခု တည်ဆောက်ခြင်း
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${clean}</div>`, 'text/html');
+        const container = doc.body.firstChild;
+
+        // 3. Apple Books တွင် Error အတက်ဆုံး ဖြစ်သည့် <br> တက်ဂ်များကို <p> လွတ်အဖြစ် သန့်ရှင်းစွာ အစားထိုးခြင်း
+        const brs = container.querySelectorAll('br');
+        brs.forEach(br => {
+            const pBr = doc.createElement('p');
+            pBr.innerHTML = '&#160;';
+            br.replaceWith(pBr);
+        });
+
+        // 4. Img တက်ဂ်များအားလုံးကို စစ်ဆေးပြီး Attribute များ ဖြည့်သွင်းခြင်း
+        const imgs = container.querySelectorAll('img');
+        imgs.forEach(img => {
+            if (!img.getAttribute('alt')) img.setAttribute('alt', 'image');
+        });
+
+        // 5. 🌟 အဓိကအချက် - XMLSerializer ကို သုံးပြီး တက်ဂ်အဖွင့်အပိတ် အမှားအားလုံးကို XHTML စံနှုန်းအတိုင်း ရာနှုန်းပြည့် ပြန်ဆောက်ခြင်း 🌟
+        const serializer = new XMLSerializer();
+        let xmlString = serializer.serializeToString(container);
+        
+        // XML Root ၏ <div> အဖွင့်အပိတ်ကို ဖယ်ရှားပြီး အထဲက စာသားသက်သက်ကို ယူခြင်း
+        xmlString = xmlString.replace(/^<div[^>]*>/, '').replace(/<\/div>$/, '');
+
+        return xmlString;
     }
+
+    // --- 🌟 INDUSTRIAL GRADE BULLETPROOF EPUB ENGINE 🌟 ---
+    function generateEPUB() {
+        saveCurrentBookState();
+        
+        const title = document.getElementById('book-title').value || "Untitled Book";
+        const author = document.getElementById('author').value || "Unknown Author";
+        
+        if(bookChapters.length === 0) {
+            alert("ကျေးဇူးပြု၍ အခန်း (Chapter) အနည်းဆုံး တစ်ခု အရင်တိုးပေးပါ။");
+            return;
+        }
+
+        if (typeof JSZip === 'undefined') {
+            alert("JSZip Library မတက်သေးပါ၊ ခေတ္တစောင့်ပြီး ပြန်ကြိုးစားပေးပါ။");
+            return;
+        }
+
+        const zip = new JSZip();
+        
+        // Rule 1: Apple Books Requirement - mimetype MUST be the absolute first file and uncompressed
+        zip.file("mimetype", "application/epub+zip", { compression: "STORE" });
+        
+        // Metadata structure
+        const containerXml = `<?xml version="1.0" encoding="UTF-8"?>
+        <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+            <rootfiles>
+                <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+            </rootfiles>
+        </container>`;
+        zip.file("META-INF/container.xml", containerXml);
+
+        let manifestItems = "";
+        let spineItems = "";
+
+        // Build chapters
+        bookChapters.forEach((chap, index) => {
+            // စာသားများကို သန့်စင်ပြီးမှ ePub ထဲ ထည့်သွင်းခြင်း
+            const finalizedContent = cleanHTMLForXHTML(chap.content);
+
+            const chapHtml = `<?xml version="1.0" encoding="utf-8"?>
+            <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+            <html xmlns="http://www.w3.org/1999/xhtml">
+            <head>
+                <title>${chap.title}</title>
+                <style>
+                    body { padding: 20px; font-family: sans-serif; line-height: 1.6; color: #111111; background-color: #ffffff; }
+                    img { max-width: 100%; height: auto; display: block; margin: 10px 0; border-radius: 4px; }
+                    h1 { font-size: 1.5em; text-align: center; margin-bottom: 20px; }
+                    p { margin-bottom: 0.8em; text-align: justify; line-height: 1.6; }
+                </style>
+            </head>
+            <body>
+                <h1>${chap.title}</h1>
+                <div>${finalizedContent}</div>
+            </body>
+            </html>`;
+            
+            zip.file(`OEBPS/chapter_${index + 1}.xhtml`, chapHtml);
+            manifestItems += `<item id="chap_${index + 1}" href="chapter_${index + 1}.xhtml" media-type="application/xhtml+xml"/>\n`;
+            spineItems += `<itemref idref="chap_${index + 1}"/>\n`;
+        });
+
+        // Content OPF
+        const opfXml = `<?xml version="1.0" encoding="UTF-8"?>
+        <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" version="2.0">
+            <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+                <dc:title>${title}</dc:title>
+                <dc:creator opf:role="aut">${author}</dc:creator>
+                <dc:language>my</dc:language>
+                <dc:identifier id="bookid">urn:uuid:${Date.now()}</dc:identifier>
+            </metadata>
+            <manifest>
+                <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+                ${manifestItems}
+            </manifest>
+            <spine toc="ncx">
+                ${spineItems}
+            </spine>
+        </package>`;
+        zip.file("OEBPS/content.opf", opfXml);
+
+        // NCX Navigation
+        let ncxNav = "";
+        bookChapters.forEach((chap, index) => {
+            ncxNav += `<navPoint id="nav_${index + 1}" playOrder="${index + 1}">
+                <navLabel><text>${chap.title}</text></navLabel>
+                <content src="chapter_${index + 1}.xhtml"/>
+            </navPoint>\n`;
+        });
+
+        const ncxXml = `<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx v2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+        <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+            <head>
+                <meta name="dtb:uid" content="urn:uuid:${Date.now()}"/>
+                <meta name="dtb:depth" content="1"/>
+            </head>
+            <docTitle><text>${title}</text></docTitle>
+            <navMap>${ncxNav}</navMap>
+        </ncx>`;
+        zip.file("OEBPS/toc.ncx", ncxXml);
+
+        // Generate and download
+        zip.generateAsync({ type: "blob", mimeType: "application/epub+zip" }).then(function (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = title.replace(/\s+/g, '_') + ".epub";
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }).catch(function (err) {
+            alert("ePub Generation Error: " + err.message);
+        });
+    }
+
+    function formatDoc(cmd) { document.execCommand(cmd, false, null); }
+    function clearContent() { document.getElementById('editor').innerHTML = ""; updateActiveChapterContent(); }
     
     function resetForm() {
         if(confirm("အစက ပြန်စမှာ သေချာပါသလား။")) {
             localStorage.removeItem('epub_master_data');
-            bookChapters = [];
-            activeChapterId = null;
-            coverBase64 = "";
+            bookChapters = []; activeChapterId = null; coverBase64 = "";
             document.getElementById('book-title').value = "";
             document.getElementById('author').value = "";
             document.getElementById('cover-status').innerText = "";
-            document.getElementById('cover-image').value = "";
-            renderChapterList();
-            loadActiveChapter();
+            renderChapterList(); loadActiveChapter();
         }
     }
 
@@ -448,7 +595,7 @@
         document.getElementById('lbl-btn-load').innerText = data.btnLoad;
         document.getElementById('lbl-btn-reset').innerText = data.btnReset;
         document.getElementById('lbl-book-title').innerText = data.bookTitle;
-        document.getElementById('lbl-author').innerText = data.author;
+        document.getElementById('author').innerText = data.author;
         document.getElementById('lbl-cover').innerText = data.cover;
         document.getElementById('lbl-chapters').innerText = data.chapters;
         document.getElementById('lbl-btn-addchapter').innerText = data.btnAddChap;
