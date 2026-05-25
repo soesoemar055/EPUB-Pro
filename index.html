@@ -1,29 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Web ePub Creator Pro</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<div id="editor" contenteditable="true" style="width: 100%; min-height: 300px; border: 1px solid #ccc; padding: 15px; margin-top: 10px; background: white; color: black;">
+   ဒီနေရာမှာ စာရိုက်ပါ...
+</div>
 
-    <div class="container">
-        <h2>Web ePub Creator Pro</h2>
-        
-        <div id="toolbar">
-            <button onclick="document.execCommand('bold', false, null)"><b>B</b></button>
-            <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်ရန်</button>
-        </div>
-
-        <div id="editor" contenteditable="true">ဒီနေရာမှာ စာရိုက်ပါ...</div>
-
-        <input type="file" id="imgInput" accept="image/*" multiple style="display:none">
-
-        <button id="downloadBtn" onclick="generateEPUB()">ePub ထုတ်ယူရန်</button>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+<input type="file" id="imgInput" accept="image/*" multiple style="display:none">
+<button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်ရန်</button>
+<button id="downloadBtn" onclick="generateEPUB()" style="background: green; color: white; padding: 10px;">ePub ဖိုင် ထုတ်ယူရန်</button>
+<div id="status" style="margin-top: 10px;"></div>
