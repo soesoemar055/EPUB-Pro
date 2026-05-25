@@ -12,7 +12,9 @@
         <h2>Web ePub Creator Pro</h2>
         <div id="toolbar">
             <button onclick="document.execCommand('bold', false, null)"><b>B</b></button>
-            <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်ရန်</button>
+            <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်</button>
+            <button onclick="addChapter()">+ အခန်းသစ်</button>
+            <button onclick="resetEditor()" style="color:red;">အကုန်ဖျက်</button>
         </div>
         <div id="editor" contenteditable="true">ဒီနေရာမှာ စာရိုက်ပါ...</div>
         <input type="file" id="imgInput" accept="image/*" multiple style="display:none">
