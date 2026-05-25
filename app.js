@@ -1,19 +1,37 @@
-// ပုံထည့်သည့် လုပ်ဆောင်ချက်
+// ၁။ ပုံထည့်ခြင်းနှင့် Resize လုပ်ခြင်း
 document.getElementById('imgInput').addEventListener('change', function(e) {
     const files = e.target.files;
     for (let file of files) {
         const reader = new FileReader();
         reader.onload = function(event) {
-            const img = document.createElement('img');
+            const img = new Image();
             img.src = event.target.result;
-            document.getElementById('editor').appendChild(img);
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 800; // ပုံအကျယ် 800px သတ်မှတ်
+                const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scale;
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                const newImg = document.createElement('img');
+                newImg.src = canvas.toDataURL('image/jpeg', 0.7);
+                newImg.style.maxWidth = "100%";
+                document.getElementById('editor').appendChild(newImg);
+            };
         };
         reader.readAsDataURL(file);
     }
 });
 
-// ePub ထုတ်သည့် လုပ်ဆောင်ချက်
+// ၂။ ePub ထုတ်ယူခြင်း
 async function generateEPUB() {
+    const status = document.getElementById('status');
+    const btn = document.getElementById('downloadBtn');
+    
+    status.innerText = "ဖိုင်တည်ဆောက်နေသည်... ခဏစောင့်ပါ...";
+    btn.disabled = true;
+
     const zip = new JSZip();
     const editorContent = document.getElementById('editor').innerHTML;
     
@@ -23,7 +41,7 @@ async function generateEPUB() {
     
     images.forEach((img, index) => {
         const base64Data = img.src.split(',')[1];
-        const filename = `images/img_${index}.png`;
+        const filename = `images/img_${index}.jpg`;
         zip.file(filename, base64Data, {base64: true});
         img.src = filename;
     });
@@ -32,5 +50,7 @@ async function generateEPUB() {
     
     zip.generateAsync({type:"blob"}).then(function(content) {
         saveAs(content, "MyBook.epub");
+        status.innerText = "အောင်မြင်စွာ ထုတ်ယူနိုင်ပါပြီ!";
+        btn.disabled = false;
     });
 }
