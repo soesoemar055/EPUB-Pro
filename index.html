@@ -11,7 +11,7 @@
     <div class="container">
         <h2>Web ePub Creator Pro</h2>
         <div id="toolbar">
-            <button onclick="document.execCommand('bold', false, null)"><b>B</b></button>
+            <button onclick="document.execCommand('bold')"><b>B</b></button>
             <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်</button>
             <button onclick="addChapter()">+ အခန်းသစ်</button>
             <button onclick="resetEditor()" style="color:red;">အကုန်ဖျက်</button>
@@ -19,7 +19,6 @@
         <div id="editor" contenteditable="true">ဒီနေရာမှာ စာရိုက်ပါ...</div>
         <input type="file" id="imgInput" accept="image/*" multiple style="display:none">
         <button id="downloadBtn" onclick="generateEPUB()">ePub ဖိုင် ထုတ်ယူရန်</button>
-        <div id="status"></div>
     </div>
     <script src="app.js"></script>
 </body>
