@@ -1,15 +1,29 @@
-<div id="toolbar">
-    <button onclick="document.execCommand('bold', false, null)">B</button>
-    <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်ရန်</button>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Web ePub Creator Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-<div id="editor" contenteditable="true" style="border:1px solid #ccc; min-height: 300px; padding: 10px;">
-    ဒီနေရာမှာ စာရိုက်ပါ...
-</div>
+    <div class="container">
+        <h2>Web ePub Creator Pro</h2>
+        
+        <div id="toolbar">
+            <button onclick="document.execCommand('bold', false, null)"><b>B</b></button>
+            <button onclick="document.getElementById('imgInput').click()">📷 ပုံထည့်ရန်</button>
+        </div>
 
-<input type="file" id="imgInput" accept="image/*" multiple style="display:none">
+        <div id="editor" contenteditable="true">ဒီနေရာမှာ စာရိုက်ပါ...</div>
 
-<button onclick="generateEPUB()" style="background-color: green; color: white;">ePub ထုတ်ယူရန်</button>
+        <input type="file" id="imgInput" accept="image/*" multiple style="display:none">
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+        <button id="downloadBtn" onclick="generateEPUB()">ePub ထုတ်ယူရန်</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
