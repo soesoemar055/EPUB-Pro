@@ -1,37 +1,57 @@
+const editor = document.getElementById('editor');
+
+// ၁။ Auto-save စနစ်
+editor.addEventListener('input', () => localStorage.setItem('savedContent', editor.innerHTML));
+window.onload = () => {
+    const saved = localStorage.getItem('savedContent');
+    if (saved) editor.innerHTML = saved;
+};
+
+// ၂။ အခန်းခွဲစနစ်
+function addChapter() {
+    const chapter = document.createElement('div');
+    chapter.className = 'chapter';
+    chapter.style.border = "1px dashed #999";
+    chapter.style.margin = "10px 0";
+    chapter.innerHTML = `<h3 contenteditable="true">အခန်းခေါင်းစဉ်</h3><div contenteditable="true">စာသားများ...</div>`;
+    editor.appendChild(chapter);
+}
+
+// ၃။ ပုံထည့်ခြင်း
 document.getElementById('imgInput').addEventListener('change', function(e) {
-    const files = e.target.files;
-    for (let file of files) {
+    for (let file of e.target.files) {
         const reader = new FileReader();
-        reader.onload = function(event) {
+        reader.onload = (event) => {
             const img = document.createElement('img');
             img.src = event.target.result;
             img.style.maxWidth = "100%";
-            document.getElementById('editor').appendChild(img);
+            editor.appendChild(img);
         };
         reader.readAsDataURL(file);
     }
 });
 
+// ၄။ Reset လုပ်ခြင်း
+function resetEditor() {
+    if(confirm("အကုန်ဖျက်မှာ သေချာပြီလား?")) {
+        editor.innerHTML = "";
+        localStorage.removeItem('savedContent');
+    }
+}
+
+// ၅။ ePub ထုတ်ခြင်း
 async function generateEPUB() {
-    const status = document.getElementById('status');
-    status.innerText = "ဖိုင်တည်ဆောက်နေသည်...";
     const zip = new JSZip();
-    const content = document.getElementById('editor').innerHTML;
+    const content = editor.innerHTML;
+    const doc = new DOMParser().parseFromString(content, 'text/html');
     
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    const images = doc.querySelectorAll('img');
-    
-    images.forEach((img, index) => {
+    doc.querySelectorAll('img').forEach((img, i) => {
         const base64Data = img.src.split(',')[1];
-        const filename = `images/img_${index}.jpg`;
+        const filename = `images/img_${i}.jpg`;
         zip.file(filename, base64Data, {base64: true});
         img.src = filename;
     });
     
     zip.file("index.html", `<html><body>${doc.body.innerHTML}</body></html>`);
-    zip.generateAsync({type:"blob"}).then(function(content) {
-        saveAs(content, "MyBook.epub");
-        status.innerText = "အောင်မြင်ပါပြီ!";
-    });
+    zip.generateAsync({type:"blob"}).then(blob => saveAs(blob, "MyBook.epub"));
 }
